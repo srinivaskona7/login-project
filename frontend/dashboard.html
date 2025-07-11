@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="dashboard.style.css">
+</head>
+<body>
+    <header>
+        <div class="logo">Bookshop</div>
+        <div class="profile-container">
+            <div id="profile-icon" class="profile-icon"></div>
+        </div>
+    </header>
+
+    <main>
+        <h1>Welcome to Your Dashboard</h1>
+        <p>This is your protected area. Only logged-in users can see this.</p>
+    </main>
+
+    <div id="profile-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <span id="close-modal" class="close-btn">&times;</span>
+            <div class="modal-header">
+                <div class="avatar-placeholder"></div>
+                <div class="user-info">
+                    <h3 id="profile-name"></h3>
+                    <p id="profile-email"></p>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="detail-item">
+                    <span>First Name</span>
+                    <strong id="profile-firstName"></strong>
+                </div>
+                <div class="detail-item">
+                    <span>Last Name</span>
+                    <strong id="profile-lastName"></strong>
+                </div>
+                <div class="detail-item">
+                    <span>Password Hint</span>
+                    <strong id="profile-passwordHint"></strong>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="logout-button">Logout</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="dashboard.app.js"></script>
+</body>
+</html>

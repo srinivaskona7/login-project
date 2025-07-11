@@ -250,9 +250,13 @@
                     if (!res.ok) throw new Error(data.msg || 'Login failed');
                     
                     localStorage.setItem('token', data.token);
-                    showMessage(loginMessage, 'Login successful!', false);
-                    // In a real app, you would now redirect to a dashboard page
-                    // Example: window.location.href = '/dashboard';
+                    showMessage(loginMessage, 'Login successful! Redirecting...', false);
+                    
+                    // Redirect to the dashboard page after 1 second
+                    setTimeout(() => {
+                        window.location.href = 'dashboard.html';
+                    }, 1000);
+
                 } catch (error) {
                     showMessage(loginMessage, error.message, true);
                 }
