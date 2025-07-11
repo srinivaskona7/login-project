@@ -4,51 +4,297 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
-    <link rel="stylesheet" href="dashboard.style.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.css" rel="stylesheet">
+    <style>
+        /* All CSS is now embedded directly in this file */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #e9eef2; /* A softer background */
+            margin: 0;
+            color: #333;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 2rem;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 700; }
+        main { padding: 2rem; text-align: center; }
+
+        .profile-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: #ccc;
+            cursor: pointer;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 24px;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .modal-header {
+            display: flex;
+            align-items: center;
+            padding: 24px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .user-info h3 { margin: 0; font-size: 18px; }
+        .user-info p { margin: 0; color: #777; font-size: 14px; }
+        .modal-body { padding: 24px; }
+
+        .detail-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #f5f5f5;
+        }
+        .detail-item:last-child { border-bottom: none; }
+        .detail-item span { color: #555; font-size: 14px; }
+        .detail-item strong { font-weight: 500; }
+
+        .modal-footer {
+            padding: 16px 24px;
+            text-align: right;
+            background-color: #f9f9f9;
+            border-radius: 0 0 12px 12px;
+        }
+
+        #logout-button {
+            padding: 10px 20px; border: none; border-radius: 6px;
+            background-color: #dc3545; color: white;
+            font-weight: 500; cursor: pointer;
+        }
+
+        /* Editable Avatar Styles */
+        .avatar-container { position: relative; cursor: pointer; }
+        .avatar-placeholder {
+            width: 60px; height: 60px; border-radius: 50%;
+            background: #e0e0e0; margin-right: 16px;
+            flex-shrink: 0; object-fit: cover;
+        }
+        .edit-avatar-icon {
+            position: absolute; bottom: 5px; right: 15px;
+            background: rgba(0,0,0,0.6); color: white; width: 20px;
+            height: 20px; border-radius: 50%; display: flex;
+            justify-content: center; align-items: center; font-size: 12px;
+            opacity: 0; transition: opacity 0.2s;
+        }
+        .avatar-container:hover .edit-avatar-icon { opacity: 1; }
+
+        /* Cropping Modal Styles */
+        .crop-container { padding: 1rem; height: 300px; background-color: #f0f0f0; }
+        #image-to-crop { max-width: 100%; }
+        .crop-footer { display: flex; justify-content: flex-end; gap: 10px; }
+        .crop-footer button {
+            padding: 10px 20px; border: none; border-radius: 6px;
+            font-weight: 500; cursor: pointer;
+        }
+        #cancel-crop-btn { background-color: #ddd; color: #333; }
+        #upload-btn { background-color: #4A5A40; color: white; }
+        .hidden { display: none; }
+    </style>
 </head>
 <body>
     <header>
         <div class="logo">Bookshop</div>
         <div class="profile-container">
-            <div id="profile-icon" class="profile-icon"></div>
+            <img id="profile-icon" class="profile-icon" src="" alt="Profile Picture"/>
         </div>
     </header>
 
     <main>
         <h1>Welcome to Your Dashboard</h1>
         <p>This is your protected area. Only logged-in users can see this.</p>
+        <input type="file" id="image-input" accept="image/*" class="hidden">
     </main>
 
     <div id="profile-modal" class="modal-overlay hidden">
         <div class="modal">
             <span id="close-modal" class="close-btn">&times;</span>
             <div class="modal-header">
-                <div class="avatar-placeholder"></div>
+                <div class="avatar-container">
+                    <img id="modal-avatar" class="avatar-placeholder" src="" alt="Profile Picture"/>
+                    <div class="edit-avatar-icon">✎</div>
+                </div>
                 <div class="user-info">
                     <h3 id="profile-name"></h3>
                     <p id="profile-email"></p>
                 </div>
             </div>
             <div class="modal-body">
-                <div class="detail-item">
-                    <span>First Name</span>
-                    <strong id="profile-firstName"></strong>
-                </div>
-                <div class="detail-item">
-                    <span>Last Name</span>
-                    <strong id="profile-lastName"></strong>
-                </div>
-                <div class="detail-item">
-                    <span>Password Hint</span>
-                    <strong id="profile-passwordHint"></strong>
-                </div>
+                <div class="detail-item"><span>First Name</span><strong id="profile-firstName"></strong></div>
+                <div class="detail-item"><span>Last Name</span><strong id="profile-lastName"></strong></div>
+                <div class="detail-item"><span>Password Hint</span><strong id="profile-passwordHint"></strong></div>
             </div>
-            <div class="modal-footer">
-                <button id="logout-button">Logout</button>
+            <div class="modal-footer"><button id="logout-button">Logout</button></div>
+        </div>
+    </div>
+    
+    <div id="crop-modal" class="modal-overlay hidden">
+        <div class="modal">
+            <h2 style="text-align: center; padding-top: 20px;">Crop Your Photo</h2>
+            <div class="crop-container"><img id="image-to-crop" src=""></div>
+            <div class="modal-footer crop-footer">
+                <button id="cancel-crop-btn">Cancel</button>
+                <button id="upload-btn">Crop & Upload</button>
             </div>
         </div>
     </div>
 
-    <script src="dashboard.app.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.12/cropper.min.js"></script>
+    
+    <script>
+        // All JavaScript is now embedded directly in this file
+        document.addEventListener('DOMContentLoaded', async () => {
+            const PROFILE_API_URL = 'http://localhost:3001/api/profile'; // Assuming this is correct from previous setup
+            const token = localStorage.getItem('token');
+
+            if (!token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // --- Page Elements ---
+            const profileIcon = document.getElementById('profile-icon');
+            const modalAvatar = document.getElementById('modal-avatar');
+            const profileModal = document.getElementById('profile-modal');
+            const closeModalBtn = document.getElementById('close-modal');
+            const logoutButton = document.getElementById('logout-button');
+            const imageInput = document.getElementById('image-input');
+            const avatarContainer = document.querySelector('.avatar-container');
+            
+            // --- Cropping Modal Elements ---
+            const cropModal = document.getElementById('crop-modal');
+            const imageToCrop = document.getElementById('image-to-crop');
+            const uploadBtn = document.getElementById('upload-btn');
+            const cancelCropBtn = document.getElementById('cancel-crop-btn');
+            let cropper;
+
+            // --- Helper function to update avatars ---
+            const updateAvatars = (imgSrc) => {
+                const placeholder = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='; // Transparent pixel
+                profileIcon.src = imgSrc || placeholder;
+                modalAvatar.src = imgSrc || placeholder;
+            };
+
+            // --- Fetch and Display User Data ---
+            try {
+                const res = await fetch(`${PROFILE_API_URL}/me`, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) {
+                    localStorage.removeItem('token');
+                    window.location.href = 'index.html';
+                    return;
+                }
+                const user = await res.json();
+                
+                document.getElementById('profile-name').textContent = `${user.firstName} ${user.lastName}`;
+                document.getElementById('profile-email').textContent = user.email;
+                document.getElementById('profile-firstName').textContent = user.firstName;
+                document.getElementById('profile-lastName').textContent = user.lastName;
+                document.getElementById('profile-passwordHint').textContent = user.passwordHint || 'Not set';
+                updateAvatars(user.profilePicture);
+
+            } catch (error) {
+                console.error('Failed to fetch profile:', error);
+                localStorage.removeItem('token');
+                window.location.href = 'index.html';
+            }
+
+            // --- Event Listeners ---
+            profileIcon.addEventListener('click', () => profileModal.classList.remove('hidden'));
+            closeModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
+            
+            logoutButton.addEventListener('click', () => {
+                localStorage.removeItem('token');
+                window.location.href = 'index.html';
+            });
+
+            // --- Profile Picture Logic ---
+            avatarContainer.addEventListener('click', () => imageInput.click());
+
+            imageInput.addEventListener('change', (e) => {
+                const files = e.target.files;
+                if (files && files.length > 0) {
+                    const reader = new FileReader();
+                    reader.onload = () => {
+                        imageToCrop.src = reader.result;
+                        cropModal.classList.remove('hidden');
+                        profileModal.classList.add('hidden');
+                        
+                        if (cropper) cropper.destroy();
+                        cropper = new Cropper(imageToCrop, { aspectRatio: 1, viewMode: 1, background: false });
+                    };
+                    reader.readAsDataURL(files[0]);
+                }
+            });
+
+            cancelCropBtn.addEventListener('click', () => {
+                cropModal.classList.add('hidden');
+                imageInput.value = ''; // Reset file input
+            });
+
+            uploadBtn.addEventListener('click', async () => {
+                if (cropper) {
+                    const canvas = cropper.getCroppedCanvas({ width: 256, height: 256 });
+                    const imageData = canvas.toDataURL('image/jpeg');
+
+                    try {
+                        const res = await fetch(`${PROFILE_API_URL}/picture`, {
+                            method: 'PUT',
+                            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                            body: JSON.stringify({ imageData })
+                        });
+                        if (!res.ok) throw new Error('Failed to upload image');
+                        const data = await res.json();
+                        updateAvatars(data.profilePicture);
+                        cancelCropBtn.click();
+                    } catch (err) {
+                        alert('Upload failed. Please try again.');
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
