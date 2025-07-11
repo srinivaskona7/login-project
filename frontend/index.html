@@ -3,66 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookshop Application</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Bookshop</title>
+    <style>
+        /* CSS is now inside the HTML file for simplicity */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            color: #212529;
+        }
+
+        .container {
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-top: 0;
+            margin-bottom: 24px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ced4da;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 16px;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #5a95f5;
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 6px;
+            background-color: #4A5A40; /* Olive Green */
+            color: white;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+
+        button:hover {
+            background-color: #3D4A34;
+        }
+
+        .switch-form-text {
+            text-align: center;
+            margin-top: 24px;
+            font-size: 14px;
+        }
+
+        .switch-form-text button {
+            background: none;
+            border: none;
+            color: #4A5A40;
+            font-weight: 700;
+            cursor: pointer;
+            padding: 0;
+            font-size: 14px;
+        }
+
+        .hidden {
+            display: none;
+        }
+        
+        .message-area {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 14px;
+            font-weight: 500;
+            min-height: 20px;
+        }
+
+        .error { color: #dc3545; }
+        .success { color: #198754; }
+
+    </style>
 </head>
 <body>
-    <div id="app-container">
-        <div id="home-view">
-            <h1>Bookshop Application</h1>
-            <button id="goto-login-btn">Login</button>
-            <button id="goto-register-btn">Register</button>
-        </div>
 
-        <div id="register-view" class="hidden">
-            <h2>Register</h2>
+    <div class="container">
+        <div id="register-view">
+            <h2>Get Started Now</h2>
             <form id="register-form">
-                <input type="text" id="reg-firstName" placeholder="First Name" required>
-                <input type="text" id="reg-lastName" placeholder="Last Name" required>
-                <input type="email" id="reg-email" placeholder="Email" required>
-                <input type="password" id="reg-password" placeholder="Password" required>
-                <input type="text" id="reg-passwordHint" placeholder="Password Hint">
-                <button type="submit">Register</button>
+                <div class="form-group">
+                    <label for="reg-firstName">First Name</label>
+                    <input type="text" id="reg-firstName" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-lastName">Last Name</label>
+                    <input type="text" id="reg-lastName" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-email">Email Address</label>
+                    <input type="email" id="reg-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-password">Password</label>
+                    <input type="password" id="reg-password" required>
+                </div>
+                <div class="form-group">
+                    <label for="reg-passwordHint">Password Hint</label>
+                    <input type="text" id="reg-passwordHint">
+                </div>
+                <button type="submit">Sign Up</button>
             </form>
-            <button class="back-btn">Back to Home</button>
+            <div class="message-area" id="register-message-area"></div>
+            <div class="switch-form-text">
+                Already have an account? <button id="goto-login">Sign In</button>
+            </div>
         </div>
 
         <div id="login-view" class="hidden">
-            <h2>Login</h2>
+            <h2>Welcome Back</h2>
             <form id="login-form">
-                <input type="email" id="login-email" placeholder="Email" required>
-                <input type="password" id="login-password" placeholder="Password" required>
-                <button type="submit">Login</button>
+                <div class="form-group">
+                    <label for="login-email">Email Address</label>
+                    <input type="email" id="login-email" required>
+                </div>
+                <div class="form-group">
+                    <label for="login-password">Password</label>
+                    <input type="password" id="login-password" required>
+                </div>
+                <button type="submit">Sign In</button>
             </form>
-            <button class="back-btn">Back to Home</button>
+            <div class="message-area" id="login-message-area"></div>
+            <div class="switch-form-text">
+                Don't have an account? <button id="goto-register">Sign Up</button>
+            </div>
         </div>
-
-        <div id="dashboard-view" class="hidden">
-            <header>
-                <div id="profile-icon-container">
-                    <div id="profile-icon"></div>
-                </div>
-                <h2>Welcome, <span id="welcome-username"></span>!</h2>
-                <button id="logout-btn">Logout</button>
-            </header>
-            <main>
-                <div id="profile-details" class="hidden">
-                    <h3>Profile Information</h3>
-                    <p><strong>First Name:</strong> <span id="profile-firstName"></span></p>
-                    <p><strong>Last Name:</strong> <span id="profile-lastName"></span></p>
-                    <p><strong>Email:</strong> <span id="profile-email"></span></p>
-                    <hr>
-                    <h4>Change Password</h4>
-                    <form id="change-password-form">
-                        <input type="password" id="current-password" placeholder="Current Password" required>
-                        <input type="password" id="new-password" placeholder="New Password" required>
-                        <button type="submit">Update Password</button>
-                    </form>
-                </div>
-            </main>
-        </div>
-         <p id="message-area"></p>
     </div>
-    <script src="app.js"></script>
+
+    <script>
+        // JavaScript is now inside the HTML file for simplicity
+        document.addEventListener('DOMContentLoaded', () => {
+            const AUTH_API_URL = 'http://localhost:3000/api/auth';
+            
+            // Views
+            const registerView = document.getElementById('register-view');
+            const loginView = document.getElementById('login-view');
+            
+            // Switch Buttons
+            const gotoLoginBtn = document.getElementById('goto-login');
+            const gotoRegisterBtn = document.getElementById('goto-register');
+
+            // Forms
+            const registerForm = document.getElementById('register-form');
+            const loginForm = document.getElementById('login-form');
+            
+            // Message Areas
+            const registerMessage = document.getElementById('register-message-area');
+            const loginMessage = document.getElementById('login-message-area');
+
+            // --- View Switching Logic ---
+            gotoLoginBtn.addEventListener('click', () => {
+                registerView.classList.add('hidden');
+                loginView.classList.remove('hidden');
+            });
+
+            gotoRegisterBtn.addEventListener('click', () => {
+                loginView.classList.add('hidden');
+                registerView.classList.remove('hidden');
+            });
+            
+            // --- Message Display Logic ---
+            const showMessage = (element, message, isError = false) => {
+                element.textContent = message;
+                element.className = isError ? 'message-area error' : 'message-area success';
+            };
+
+            // --- Form Submission Logic ---
+            registerForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showMessage(registerMessage); // Clear message
+                const body = {
+                    firstName: document.getElementById('reg-firstName').value,
+                    lastName: document.getElementById('reg-lastName').value,
+                    email: document.getElementById('reg-email').value,
+                    password: document.getElementById('reg-password').value,
+                    passwordHint: document.getElementById('reg-passwordHint').value,
+                };
+                try {
+                    const res = await fetch(`${AUTH_API_URL}/register`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.msg || 'Registration failed');
+                    
+                    showMessage(registerMessage, 'Registration successful! Please sign in.', false);
+                    setTimeout(() => gotoLoginBtn.click(), 2000); // Auto-switch to login form
+                } catch (error) {
+                    showMessage(registerMessage, error.message, true);
+                }
+            });
+
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                showMessage(loginMessage); // Clear message
+                const body = {
+                    email: document.getElementById('login-email').value,
+                    password: document.getElementById('login-password').value,
+                };
+                try {
+                    const res = await fetch(`${AUTH_API_URL}/login`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await res.json();
+                    if (!res.ok) throw new Error(data.msg || 'Login failed');
+                    
+                    localStorage.setItem('token', data.token);
+                    showMessage(loginMessage, 'Login successful!', false);
+                    // In a real app, you would now redirect to a dashboard page
+                    // Example: window.location.href = '/dashboard';
+                } catch (error) {
+                    showMessage(loginMessage, error.message, true);
+                }
+            });
+        });
+    </script>
 </body>
 </html>
