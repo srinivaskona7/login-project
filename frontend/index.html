@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookshop Application</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        <div id="home-view">
+            <h1>Bookshop Application</h1>
+            <button id="goto-login-btn">Login</button>
+            <button id="goto-register-btn">Register</button>
+        </div>
+
+        <div id="register-view" class="hidden">
+            <h2>Register</h2>
+            <form id="register-form">
+                <input type="text" id="reg-firstName" placeholder="First Name" required>
+                <input type="text" id="reg-lastName" placeholder="Last Name" required>
+                <input type="email" id="reg-email" placeholder="Email" required>
+                <input type="password" id="reg-password" placeholder="Password" required>
+                <input type="text" id="reg-passwordHint" placeholder="Password Hint">
+                <button type="submit">Register</button>
+            </form>
+            <button class="back-btn">Back to Home</button>
+        </div>
+
+        <div id="login-view" class="hidden">
+            <h2>Login</h2>
+            <form id="login-form">
+                <input type="email" id="login-email" placeholder="Email" required>
+                <input type="password" id="login-password" placeholder="Password" required>
+                <button type="submit">Login</button>
+            </form>
+            <button class="back-btn">Back to Home</button>
+        </div>
+
+        <div id="dashboard-view" class="hidden">
+            <header>
+                <div id="profile-icon-container">
+                    <div id="profile-icon"></div>
+                </div>
+                <h2>Welcome, <span id="welcome-username"></span>!</h2>
+                <button id="logout-btn">Logout</button>
+            </header>
+            <main>
+                <div id="profile-details" class="hidden">
+                    <h3>Profile Information</h3>
+                    <p><strong>First Name:</strong> <span id="profile-firstName"></span></p>
+                    <p><strong>Last Name:</strong> <span id="profile-lastName"></span></p>
+                    <p><strong>Email:</strong> <span id="profile-email"></span></p>
+                    <hr>
+                    <h4>Change Password</h4>
+                    <form id="change-password-form">
+                        <input type="password" id="current-password" placeholder="Current Password" required>
+                        <input type="password" id="new-password" placeholder="New Password" required>
+                        <button type="submit">Update Password</button>
+                    </form>
+                </div>
+            </main>
+        </div>
+         <p id="message-area"></p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
