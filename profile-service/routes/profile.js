@@ -69,4 +69,22 @@ router.put('/change-password', authMiddleware, async (req, res) => {
     }
 });
 
+
+// --- THIS IS THE NEW ROUTE ---
+// @route   GET api/profile/users
+// @desc    Get all users
+// @access  Private
+router.get('/users', authMiddleware, async (req, res) => {
+    try {
+        // Find all users and exclude their passwords from the result
+        const users = await User.find().select('-password');
+        logger.info('Fetched list of all users', { requestedBy: req.user.id });
+        res.json(users);
+    } catch (err) {
+        logger.error('Server Error in /users route', { requestedBy: req.user.id, error: err.message, stack: err.stack });
+        res.status(500).send('Server Error');
+    }
+});
+
+
 module.exports = router;
