@@ -8,7 +8,7 @@ const logger = require('./config/logger'); // Import logger
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors()); // Enable CORS for all routes
 app.use(express.json());
 
 // Setup Morgan to stream HTTP logs through Winston

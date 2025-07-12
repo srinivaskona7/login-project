@@ -24,12 +24,6 @@
             background-color: #fff;
             box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         }
-        
-        .header-controls {
-            display: flex;
-            align-items: center;
-            gap: 16px;
-        }
 
         .logo { font-size: 1.5rem; font-weight: 700; }
         main { padding: 2rem; text-align: center; }
@@ -44,18 +38,6 @@
             border: 2px solid #fff;
             box-shadow: 0 1px 3px rgba(0,0,0,0.2);
         }
-        
-        .header-btn {
-            background-color: #4A5A40;
-            color: white;
-            border: none;
-            padding: 8px 16px;
-            border-radius: 6px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .header-btn:hover { background-color: #3D4A34; }
 
         /* Modal Styles */
         .modal-overlay {
@@ -76,11 +58,9 @@
             border-radius: 12px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.2);
             width: 90%;
-            max-width: 450px; /* Slightly wider for user list */
+            max-width: 400px;
             position: relative;
         }
-
-        .modal h2 { text-align: center; padding-top: 20px; margin-bottom: 0; }
 
         .close-btn {
             position: absolute;
@@ -100,7 +80,7 @@
 
         .user-info h3 { margin: 0; font-size: 18px; }
         .user-info p { margin: 0; color: #777; font-size: 14px; }
-        .modal-body { padding: 0 24px 24px 24px; max-height: 400px; overflow-y: auto; }
+        .modal-body { padding: 24px; }
 
         .detail-item {
             display: flex;
@@ -112,19 +92,6 @@
         .detail-item:last-child { border-bottom: none; }
         .detail-item span { color: #555; font-size: 14px; }
         .detail-item strong { font-weight: 500; }
-
-        /* Styles for the new user list */
-        .user-list-item {
-            display: flex;
-            align-items: center;
-            padding: 12px 0;
-            border-bottom: 1px solid #f5f5f5;
-        }
-        .user-list-item:last-child { border-bottom: none; }
-        .user-list-item .avatar-placeholder { width: 40px; height: 40px; }
-        .user-list-item-info strong { display: block; }
-        .user-list-item-info span { font-size: 12px; color: #777; }
-
 
         .modal-footer {
             padding: 16px 24px;
@@ -171,11 +138,8 @@
 <body>
     <header>
         <div class="logo">Bookshop</div>
-        <div class="header-controls">
-            <button id="lou-btn" class="header-btn">LOU</button>
-            <div class="profile-container">
-                <img id="profile-icon" class="profile-icon" src="" alt="Profile Picture"/>
-            </div>
+        <div class="profile-container">
+            <img id="profile-icon" class="profile-icon" src="" alt="Profile Picture"/>
         </div>
     </header>
 
@@ -187,7 +151,7 @@
 
     <div id="profile-modal" class="modal-overlay hidden">
         <div class="modal">
-            <span id="close-profile-modal" class="close-btn">&times;</span>
+            <span id="close-modal" class="close-btn">&times;</span>
             <div class="modal-header">
                 <div class="avatar-container">
                     <img id="modal-avatar" class="avatar-placeholder" src="" alt="Profile Picture"/>
@@ -209,21 +173,12 @@
     
     <div id="crop-modal" class="modal-overlay hidden">
         <div class="modal">
-            <h2>Crop Your Photo</h2>
+            <h2 style="text-align: center; padding-top: 20px;">Crop Your Photo</h2>
             <div class="crop-container"><img id="image-to-crop" src=""></div>
             <div class="modal-footer crop-footer">
                 <button id="cancel-crop-btn">Cancel</button>
                 <button id="upload-btn">Crop & Upload</button>
             </div>
-        </div>
-    </div>
-    
-    <div id="users-modal" class="modal-overlay hidden">
-        <div class="modal">
-            <span id="close-users-modal" class="close-btn">&times;</span>
-            <h2>List of Users</h2>
-            <div id="users-list" class="modal-body">
-                </div>
         </div>
     </div>
 
@@ -232,7 +187,7 @@
     <script>
         // All JavaScript is now embedded directly in this file
         document.addEventListener('DOMContentLoaded', async () => {
-            const PROFILE_API_URL = 'http://localhost:3001/api/profile'; // Assuming this is correct from previous setup
+            const PROFILE_API_URL = '/api/profile'; // Use relative path
             const token = localStorage.getItem('token');
 
             if (!token) {
@@ -243,21 +198,11 @@
             // --- Page Elements ---
             const profileIcon = document.getElementById('profile-icon');
             const modalAvatar = document.getElementById('modal-avatar');
-            const louBtn = document.getElementById('lou-btn');
-            
-            // --- Modals ---
             const profileModal = document.getElementById('profile-modal');
-            const usersModal = document.getElementById('users-modal');
-            
-            // --- Close Buttons ---
-            const closeProfileModalBtn = document.getElementById('close-profile-modal');
-            const closeUsersModalBtn = document.getElementById('close-users-modal');
-            
-            // --- Other Elements ---
+            const closeModalBtn = document.getElementById('close-modal');
             const logoutButton = document.getElementById('logout-button');
             const imageInput = document.getElementById('image-input');
             const avatarContainer = document.querySelector('.avatar-container');
-            const usersListDiv = document.getElementById('users-list');
             
             // --- Cropping Modal Elements ---
             const cropModal = document.getElementById('crop-modal');
@@ -266,6 +211,7 @@
             const cancelCropBtn = document.getElementById('cancel-crop-btn');
             let cropper;
 
+            // --- Helper function to update avatars ---
             const updateAvatars = (imgSrc) => {
                 const placeholder = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='; // Transparent pixel
                 profileIcon.src = imgSrc || placeholder;
@@ -297,43 +243,12 @@
 
             // --- Event Listeners ---
             profileIcon.addEventListener('click', () => profileModal.classList.remove('hidden'));
-            closeProfileModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
+            closeModalBtn.addEventListener('click', () => profileModal.classList.add('hidden'));
             
             logoutButton.addEventListener('click', () => {
                 localStorage.removeItem('token');
                 window.location.href = 'index.html';
             });
-            
-            // --- List of Users (LOU) Logic ---
-            louBtn.addEventListener('click', async () => {
-                try {
-                    const res = await fetch(`${PROFILE_API_URL}/users`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    if (!res.ok) throw new Error('Failed to fetch user list');
-                    const users = await res.json();
-                    
-                    // Populate the user list modal
-                    usersListDiv.innerHTML = ''; // Clear previous list
-                    users.forEach(user => {
-                        const userItem = document.createElement('div');
-                        userItem.className = 'user-list-item';
-                        userItem.innerHTML = `
-                            <img class="avatar-placeholder" src="${user.profilePicture || ''}" alt="Avatar"/>
-                            <div class="user-list-item-info">
-                                <strong>${user.firstName} ${user.lastName}</strong>
-                                <span>${user.email}</span>
-                            </div>
-                        `;
-                        usersListDiv.appendChild(userItem);
-                    });
-
-                    usersModal.classList.remove('hidden');
-                } catch (error) {
-                    console.error('Error fetching user list:', error);
-                    alert('Could not load the list of users.');
-                }
-            });
-            closeUsersModalBtn.addEventListener('click', () => usersModal.classList.add('hidden'));
-
 
             // --- Profile Picture Logic ---
             avatarContainer.addEventListener('click', () => imageInput.click());

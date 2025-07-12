@@ -1,4 +1,3 @@
-# --- ConfigMap ---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -6,20 +5,17 @@ metadata:
 data:
   AUTH_API_URL: "http://auth-service:3000/api/auth"
   PROFILE_API_URL: "http://profile-service:3001/api/profile"
-  MONGO_URI: "mongodb://root:user123@mongodb-service:27017/admin"
-
 ---
-# --- Secrets ---
 apiVersion: v1
 kind: Secret
 metadata:
   name: app-secrets
 type: Opaque
 stringData:
-  JWT_SECRET: "your-super-secret-jwt-key" # Change this to a strong, random string
-
+  JWT_SECRET: "your-super-strong-and-secret-jwt-key-98765"
+  MONGO_USER: "root"
+  MONGO_PASS: "user123"
 ---
-# --- MongoDB StatefulSet ---
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -36,29 +32,33 @@ spec:
         app: mongodb
     spec:
       containers:
-        - name: mongodb
-          image: mongo:latest
-          ports:
-            - containerPort: 27017
-          env:
-            - name: MONGO_INITDB_ROOT_USERNAME
-              value: root
-            - name: MONGO_INITDB_ROOT_PASSWORD
-              value: user123
-          volumeMounts:
-            - name: mongo-data
-              mountPath: /data/db
+      - name: mongodb
+        image: mongo:latest
+        ports:
+        - containerPort: 27017
+        env:
+        - name: MONGO_INITDB_ROOT_USERNAME
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: MONGO_USER
+        - name: MONGO_INITDB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: app-secrets
+              key: MONGO_PASS
+        volumeMounts:
+        - name: mongo-data
+          mountPath: /data/db
   volumeClaimTemplates:
-    - metadata:
-        name: mongo-data
-      spec:
-        accessModes: ["ReadWriteOnce"]
-        resources:
-          requests:
-            storage: 1Gi # Adjust storage as needed
-
+  - metadata:
+      name: mongo-data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      resources:
+        requests:
+          storage: 1Gi
 ---
-# --- MongoDB Service ---
 apiVersion: v1
 kind: Service
 metadata:
@@ -67,13 +67,10 @@ spec:
   selector:
     app: mongodb
   ports:
-    - protocol: TCP
-      port: 27017
-      targetPort: 27017
-  clusterIP: None # Headless service for StatefulSet
-
+  - port: 27017
+    targetPort: 27017
+  clusterIP: None
 ---
-# --- Auth Service Deployment ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -88,19 +85,24 @@ spec:
       labels:
         app: auth-service
     spec:
+      initContainers:
+      - name: wait-for-mongodb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup mongodb-service; do echo waiting for mongodb; sleep 2; done;']
       containers:
-        - name: auth-service
-          image: sriniv7654/busybox2:auth-service # <-- Image updated
-          ports:
-            - containerPort: 3000
-          envFrom:
-            - configMapRef:
-                name: app-config
-            - secretRef:
-                name: app-secrets
-
+      - name: auth-service
+        image: sriniv7654/busybox2:auth-service-new
+        ports:
+        - containerPort: 3000
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
+        env:
+        - name: MONGO_URI
+          value: "mongodb://$(MONGO_USER):$(MONGO_PASS)@mongodb-service:27017/admin"
 ---
-# --- Auth Service ---
 apiVersion: v1
 kind: Service
 metadata:
@@ -109,12 +111,9 @@ spec:
   selector:
     app: auth-service
   ports:
-    - protocol: TCP
-      port: 3000
-      targetPort: 3000
-
+  - port: 3000
+    targetPort: 3000
 ---
-# --- Profile Service Deployment ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -129,19 +128,24 @@ spec:
       labels:
         app: profile-service
     spec:
+      initContainers:
+      - name: wait-for-mongodb
+        image: busybox:1.28
+        command: ['sh', '-c', 'until nslookup mongodb-service; do echo waiting for mongodb; sleep 2; done;']
       containers:
-        - name: profile-service
-          image: sriniv7654/busybox2:profile-service # <-- Image updated
-          ports:
-            - containerPort: 3001
-          envFrom:
-            - configMapRef:
-                name: app-config
-            - secretRef:
-                name: app-secrets
-
+      - name: profile-service
+        image: sriniv7654/busybox2:profile-service-new
+        ports:
+        - containerPort: 3001
+        envFrom:
+        - configMapRef:
+            name: app-config
+        - secretRef:
+            name: app-secrets
+        env:
+        - name: MONGO_URI
+          value: "mongodb://$(MONGO_USER):$(MONGO_PASS)@mongodb-service:27017/admin"
 ---
-# --- Profile Service ---
 apiVersion: v1
 kind: Service
 metadata:
@@ -150,12 +154,9 @@ spec:
   selector:
     app: profile-service
   ports:
-    - protocol: TCP
-      port: 3001
-      targetPort: 3001
-
+  - port: 3001
+    targetPort: 3001
 ---
-# --- Frontend Deployment ---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -171,13 +172,11 @@ spec:
         app: frontend
     spec:
       containers:
-        - name: frontend
-          image: sriniv7654/busybox2:frontend # <-- Image updated
-          ports:
-            - containerPort: 80
-
+      - name: frontend
+        image: sriniv7654/busybox2:frontend-new
+        ports:
+        - containerPort: 80
 ---
-# --- Frontend Service ---
 apiVersion: v1
 kind: Service
 metadata:
@@ -186,7 +185,7 @@ spec:
   selector:
     app: frontend
   ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 80
-  type: LoadBalancer
+  - protocol: TCP
+    port: 80
+    targetPort: 80
+  type: LoadBalancer # <-- Exposing frontend directly
