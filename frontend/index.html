@@ -1,177 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bookshop</title>
-    <style>
-        /* CSS is now inside the HTML file for simplicity */
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap');
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f8f9fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
-            color: #212529;
-        }
-
-        .container {
-            background-color: #ffffff;
-            padding: 40px;
-            border-radius: 8px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-            width: 100%;
-            max-width: 400px;
-        }
-
-        h2 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-top: 0;
-            margin-bottom: 24px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 16px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid #ced4da;
-            border-radius: 6px;
-            box-sizing: border-box;
-            font-size: 16px;
-            transition: border-color 0.2s;
-        }
-
-        input:focus {
-            outline: none;
-            border-color: #5a95f5;
-        }
-
-        button {
-            width: 100%;
-            padding: 12px;
-            border: none;
-            border-radius: 6px;
-            background-color: #4A5A40; /* Olive Green */
-            color: white;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-
-        button:hover {
-            background-color: #3D4A34;
-        }
-
-        .switch-form-text {
-            text-align: center;
-            margin-top: 24px;
-            font-size: 14px;
-        }
-
-        .switch-form-text button {
-            background: none;
-            border: none;
-            color: #4A5A40;
-            font-weight: 700;
-            cursor: pointer;
-            padding: 0;
-            font-size: 14px;
-        }
-
-        .hidden {
-            display: none;
-        }
-        
-        .message-area {
-            text-align: center;
-            margin-top: 16px;
-            font-size: 14px;
-            font-weight: 500;
-            min-height: 20px;
-        }
-
-        .error { color: #dc3545; }
-        .success { color: #198754; }
-
-    </style>
-</head>
 <body>
-
-    <div class="container">
-        <div id="register-view">
-            <h2>Get Started Now</h2>
-            <form id="register-form">
-                <div class="form-group">
-                    <label for="reg-firstName">First Name</label>
-                    <input type="text" id="reg-firstName" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg-lastName">Last Name</label>
-                    <input type="text" id="reg-lastName" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg-email">Email Address</label>
-                    <input type="email" id="reg-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg-password">Password</label>
-                    <input type="password" id="reg-password" required>
-                </div>
-                <div class="form-group">
-                    <label for="reg-passwordHint">Password Hint</label>
-                    <input type="text" id="reg-passwordHint">
-                </div>
-                <button type="submit">Sign Up</button>
-            </form>
-            <div class="message-area" id="register-message-area"></div>
-            <div class="switch-form-text">
-                Already have an account? <button id="goto-login">Sign In</button>
-            </div>
-        </div>
-
-        <div id="login-view" class="hidden">
-            <h2>Welcome Back</h2>
-            <form id="login-form">
-                <div class="form-group">
-                    <label for="login-email">Email Address</label>
-                    <input type="email" id="login-email" required>
-                </div>
-                <div class="form-group">
-                    <label for="login-password">Password</label>
-                    <input type="password" id="login-password" required>
-                </div>
-                <button type="submit">Sign In</button>
-            </form>
-            <div class="message-area" id="login-message-area"></div>
-            <div class="switch-form-text">
-                Don't have an account? <button id="goto-register">Sign Up</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // JavaScript is now inside the HTML file for simplicity
         document.addEventListener('DOMContentLoaded', () => {
-            const AUTH_API_URL = '/api/auth'; // Use relative path
+            // --- CORRECTED LINE ---
+            // Use a relative path so the browser calls the Kyma gateway.
+            const AUTH_API_URL = '/api/auth';
             
             // Views
             const registerView = document.getElementById('register-view');
@@ -227,7 +61,7 @@
                     if (!res.ok) throw new Error(data.msg || 'Registration failed');
                     
                     showMessage(registerMessage, 'Registration successful! Please sign in.', false);
-                    setTimeout(() => gotoLoginBtn.click(), 2000); // Auto-switch to login form
+                    setTimeout(() => gotoLoginBtn.click(), 2000);
                 } catch (error) {
                     showMessage(registerMessage, error.message, true);
                 }
@@ -250,12 +84,9 @@
                     if (!res.ok) throw new Error(data.msg || 'Login failed');
                     
                     localStorage.setItem('token', data.token);
-                    showMessage(loginMessage, 'Login successful! Redirecting...', false);
                     
-                    // Redirect to the dashboard page after 1 second
-                    setTimeout(() => {
-                        window.location.href = 'dashboard.html';
-                    }, 1000);
+                    // This is the most reliable way to redirect
+                    window.location.href = 'dashboard.html';
 
                 } catch (error) {
                     showMessage(loginMessage, error.message, true);

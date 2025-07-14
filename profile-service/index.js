@@ -2,13 +2,14 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
-const morgan = require('morgan');
+const morgan = require('morgan'); // <-- CORRECTED LINE
 const logger = require('./config/logger');
 
 const app = express();
 
-app.use(cors()); // Enable CORS for all routes
-app.use(express.json());
+app.use(cors());
+// This line needs to be increased to handle base64 image uploads
+app.use(express.json({ limit: '50mb' })); 
 
 // Setup Morgan to stream HTTP logs through Winston
 app.use(morgan('combined', { 
